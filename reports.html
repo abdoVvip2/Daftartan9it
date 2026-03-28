@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مستخرج التقارير الذكي</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #1a365d; --gold: #b7791f; --bg: #f8fafc; --blue: #3498db; --email: #e67e22; }
+        * { font-variant-numeric: tabular-nums; box-sizing: border-box; }
+        body { font-family: 'Noto Kufi Arabic', sans-serif; background: var(--bg); text-align: center; margin: 0; padding: 0; }
+        
+        .top-bar { background: var(--primary); color: white; padding: 15px; display: flex; align-items: center; gap: 15px; position: sticky; top: 0; z-index: 100; }
+        .container { padding: 20px 15px; max-width: 500px; margin: auto; }
+        
+        .card { background: white; padding: 25px; border-radius: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; margin-bottom: 20px; }
+        .card i { font-size: 3rem; margin-bottom: 15px; }
+        .card h3 { margin: 0 0 10px 0; color: var(--primary); font-size: 1.2rem; }
+        .card p { font-size: 0.85rem; color: #64748b; margin-bottom: 20px; line-height: 1.5; }
+
+        .btn { width: 100%; padding: 16px; border: none; border-radius: 15px; font-weight: bold; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 12px; transition: 0.3s; color: white; }
+        .btn:active { transform: scale(0.96); }
+        
+        .btn-pdf { background: var(--blue); box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3); }
+        .btn-email { background: var(--email); box-shadow: 0 4px 12px rgba(230, 126, 34, 0.3); }
+
+        #status { margin-top: 15px; font-size: 0.8rem; color: var(--gold); font-weight: bold; display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="top-bar">
+        <button onclick="history.back()" style="background:none; border:none; color:white; font-size:1.2rem; cursor:pointer;"><i class="fas fa-arrow-right"></i></button>
+        <h2 style="margin:0; font-size:1.1rem;">مركز استخراج التقارير</h2>
+    </div>
+
+    <div class="container">
+        
+        <div class="card">
+            <i class="fas fa-file-pdf" style="color: var(--blue);"></i>
+            <h3>استخراج PDF رسمي</h3>
+            <p>توليد وثيقة رسمية (A4) بالترويسة والجدول المنظم عبر المستخرج المطور.</p>
+            <button class="btn btn-pdf" onclick="sendToMoja()">
+                <i class="fas fa-magic"></i> إرسال للمستخرج الرسمي
+            </button>
+        </div>
+
+        <div class="card">
+            <i class="fas fa-envelope-open-text" style="color: var(--email);"></i>
+            <h3>إرسال تقرير نصي</h3>
+            <p>تحويل النتائج لنص منظم وإرساله فوراً عبر البريد الإلكتروني (بدون ملفات).</p>
+            <button class="btn btn-email" onclick="sendViaEmail()">
+                <i class="fas fa-paper-plane"></i> إرسال عبر الإيميل
+            </button>
+        </div>
+
+        <div id="status">⏳ جاري المعالجة...</div>
+    </div>
+
+    <script>
+        let db;
+        const req = indexedDB.open("TanqitiDB", 1);
+        req.onsuccess = (e) => { db = e.target.result; };
+
+        // 1. وظيفة الإرسال للموقع (المستخرج المطور)
+        function sendToMoja() {
+            showStatus("⏳ جاري تشفير البيانات للطباعة...");
+            const store = db.transaction("students", "readonly").objectStore("students");
+            store.getAll().onsuccess = (e) => {
+                const students = e.target.result;
+                if(students.length === 0) return alert("القائمة فارغة!");
+
+                const reportData = {
+                    "التقرير": "كشف نقاط التلاميذ",
+                    "الأستاذ": localStorage.getItem("prof_name") || "غير معرف",
+                    "المادة": "نتائج دورية",
+                    "القائمة": students.map(s => ({
+                        "الاسم": s.name,
+                        "تقويم": s.taqwim,
+                        "فرض": s.fard,
+                        "اختبار": s.ikhtibar,
+                        "المعدل": s.average,
+                        "الحالة": parseFloat(s.average) >= 10 ? "ناجح" : "راسب"
+                    }))
+                };
+
+                const jsonStr = JSON.stringify(reportData);
+                const bytes = new TextEncoder().encode(jsonStr);
+                const binString = Array.from(bytes, (byte) => String.fromCharCode(byte)).join("");
+                const base64Data = btoa(binString);
+
+                window.open(`https://abdovvip2.github.io/Moja/?data=${encodeURIComponent(base64Data)}`, '_blank');
+                hideStatus();
+            };
+        }
+
+        // 2. وظيفة الإرسال عبر الإيميل (نص صافي)
+        function sendViaEmail() {
+            showStatus("⏳ جاري تجهيز نص الرسالة...");
+            const store = db.transaction("students", "readonly").objectStore("students");
+            store.getAll().onsuccess = (e) => {
+                const students = e.target.result;
+                if(students.length === 0) return alert("القائمة فارغة!");
+
+                const prof = localStorage.getItem("prof_name") || "أستاذ المادة";
+                const date = new Date().toLocaleDateString('ar-DZ');
+
+                // بناء نص الرسالة
+                let emailBody = `تقرير نتائج التلاميذ\n`;
+                emailBody += `التاريخ: ${date}\n`;
+                emailBody += `الأستاذ: ${prof}\n`;
+                emailBody += `---------------------------------\n\n`;
+
+                students.sort((a,b) => b.average - a.average).forEach((s, i) => {
+                    const status = parseFloat(s.average) >= 10 ? "ناجح" : "راسب";
+                    emailBody += `${i+1}. ${s.name}\n`;
+                    emailBody += `   النقاط: [تقويم: ${s.taqwim} | فرض: ${s.fard} | اختبار: ${s.ikhtibar}]\n`;
+                    emailBody += `   المعدل: ${s.average} (${status})\n`;
+                    emailBody += `---------------------------------\n`;
+                });
+
+                emailBody += `\nتم استخراج هذا التقرير بواسطة تطبيق تنقيطي Pro.`;
+
+                const subject = encodeURIComponent(`نتائج التلاميذ - قسم الأستاذ ${prof}`);
+                const body = encodeURIComponent(emailBody);
+
+                // فتح تطبيق الإيميل
+                window.location.href = `mailto:?subject=${subject}&body=${body}`;
+                hideStatus();
+            };
+        }
+
+        function showStatus(msg) {
+            const s = document.getElementById('status');
+            s.style.display = 'block';
+            s.innerText = msg;
+        }
+
+        function hideStatus() {
+            document.getElementById('status').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
