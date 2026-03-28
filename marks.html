@@ -1,227 +1,202 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>رصد النقاط - تنقيطي Pro</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        :root { --primary: #1a365d; --gold: #b7791f; --bg: #f1f5f9; --red: #e53e3e; --green: #38a169; }
-        * { font-variant-numeric: tabular-nums; box-sizing: border-box; }
-        body { font-family: 'Noto Kufi Arabic', sans-serif; background: var(--bg); margin: 0; padding: 0; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>رصد النقاط - تنقيطي Pro</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root { --primary:#1a365d; --gold:#b7791f; --bg:#f1f5f9; --red:#e53e3e; --green:#38a169; --orange:#dd6b20; }
+* { font-variant-numeric: tabular-nums; box-sizing:border-box; }
+body { font-family: 'Noto Kufi Arabic', sans-serif; background: var(--bg); margin:0; padding:0; }
 
-        /* الهيدر */
-        .top-bar { background: var(--primary); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
-        .top-bar h2 { margin: 0; font-size: 1.1rem; }
-        .btn-icon { background: rgba(255,255,255,0.2); border: none; color: white; padding: 8px 12px; border-radius: 8px; cursor: pointer; }
+.top-bar { background: var(--primary); color:white; padding:15px; display:flex; justify-content:space-between; align-items:center; position:sticky; top:0; z-index:100; }
+.top-bar h2 { margin:0; font-size:1.1rem; }
+.btn-icon { background: rgba(255,255,255,0.2); border:none; color:white; padding:8px 12px; border-radius:8px; cursor:pointer; }
 
-        .container { padding: 12px; max-width: 600px; margin: auto; }
+.container { max-width:600px; margin:auto; padding:15px; }
 
-        /* أزرار التحكم السريع */
-        .action-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
-        .btn-action { background: white; border: 1px solid #ddd; padding: 10px; border-radius: 10px; font-size: 0.85rem; font-weight: bold; cursor: pointer; color: var(--primary); display: flex; align-items: center; justify-content: center; gap: 8px; }
+.action-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:15px; }
+.btn-action { background:white; border:1px solid #ddd; padding:10px; border-radius:10px; font-size:0.85rem; font-weight:bold; cursor:pointer; display:flex; justify-content:center; align-items:center; gap:5px; color: var(--primary); }
 
-        /* الإحصائيات */
-        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 15px; }
-        .stat-card { background: var(--primary); color: white; padding: 8px; border-radius: 10px; text-align: center; }
-        .stat-card small { display: block; font-size: 0.6rem; opacity: 0.8; }
-        .stat-card b { font-size: 0.9rem; }
+.stats-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:15px; }
+.stat-card { background: var(--primary); color:white; padding:8px; border-radius:10px; text-align:center; }
+.stat-card small { display:block; font-size:0.6rem; opacity:0.8; }
+.stat-card b { font-size:0.9rem; }
 
-        /* الجدول المطور */
-        .marks-table-container { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-        th { background: #edf2f7; padding: 12px 8px; text-align: center; color: var(--primary); }
-        td { padding: 10px 5px; text-align: center; border-bottom: 1px solid #f1f5f9; }
-        
-        .input-mark { width: 45px; padding: 5px; border: 1px solid #e2e8f0; border-radius: 5px; text-align: center; font-weight: bold; }
-        .avg-badge { padding: 4px 8px; border-radius: 6px; font-weight: bold; color: white; }
-        
-        /* نافذة الاستيراد */
-        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
-        .modal-content { background: white; width: 100%; max-width: 400px; padding: 20px; border-radius: 20px; }
-        textarea { width: 100%; height: 150px; margin: 15px 0; padding: 10px; border-radius: 10px; border: 1px solid #ddd; font-family: inherit; }
+.marks-table-container { background:white; border-radius:15px; overflow:hidden; box-shadow:0 4px 6px rgba(0,0,0,0.05); }
+table { width:100%; border-collapse:collapse; font-size:0.85rem; }
+th { background:#edf2f7; padding:12px 8px; color: var(--primary); }
+td { padding:10px 5px; border-bottom:1px solid #f1f5f9; text-align:center; }
 
-        /* ترتيب التلميذ */
-        .rank-tag { font-size: 0.7rem; background: #eee; padding: 2px 5px; border-radius: 4px; color: #666; }
-    </style>
+.input-mark { width:45px; padding:5px; border:1px solid #e2e8f0; border-radius:5px; text-align:center; font-weight:bold; }
+.avg-badge { padding:4px 8px; border-radius:6px; font-weight:bold; color:white; }
+
+.modal { position:fixed; inset:0; background: rgba(0,0,0,0.8); display:none; align-items:center; justify-content:center; z-index:1000; padding:20px; }
+.modal-content { background:white; width:100%; max-width:400px; padding:20px; border-radius:20px; }
+
+textarea { width:100%; height:150px; margin:15px 0; padding:10px; border-radius:10px; border:1px solid #ddd; font-family:inherit; }
+
+.rank-tag { font-size:0.7rem; background:#eee; padding:2px 5px; border-radius:4px; color:#666; display:block; margin-top:3px; }
+
+</style>
 </head>
 <body>
 
-    <div class="top-bar">
-        <button class="btn-icon" onclick="location.href='home.html'"><i class="fas fa-chevron-right"></i></button>
-        <h2>رصد النقاط</h2>
-        <button class="btn-icon" onclick="exportData()"><i class="fas fa-share-nodes"></i></button>
+<div class="top-bar">
+    <button class="btn-icon" onclick="location.href='home.html'"><i class="fas fa-chevron-right"></i></button>
+    <h2>رصد النقاط</h2>
+    <button class="btn-icon" onclick="exportData()"><i class="fas fa-share-nodes"></i></button>
+</div>
+
+<div class="container">
+    <div class="action-row">
+        <button class="btn-action" onclick="showImport()"><i class="fas fa-file-import"></i> استيراد أسماء</button>
+        <button class="btn-action" onclick="sortData()"><i class="fas fa-sort-numeric-down"></i> ترتيب النتائج</button>
     </div>
 
-    <div class="container">
-        <div class="action-row">
-            <button class="btn-action" onclick="showImport()"><i class="fas fa-file-import"></i> استيراد أسماء</button>
-            <button class="btn-action" onclick="sortData()"><i class="fas fa-sort-numeric-down"></i> ترتيب النتائج</button>
-        </div>
-
-        <div class="stats-grid">
-            <div class="stat-card"><small>العدد</small><b id="stCount">0</b></div>
-            <div class="stat-card"><small>المعدل</small><b id="stAvg">0.0</b></div>
-            <div class="stat-card" style="background:var(--green)"><small>ناجح</small><b id="stPass">0</b></div>
-            <div class="stat-card" style="background:var(--red)"><small>راسب</small><b id="stFail">0</b></div>
-        </div>
-
-        <div class="marks-table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th style="text-align: right;">التلميذ</th>
-                        <th>تقويم</th>
-                        <th>فرض</th>
-                        <th>اختبار</th>
-                        <th>معدل</th>
-                    </tr>
-                </thead>
-                <tbody id="marksBody">
-                    </tbody>
-            </table>
-        </div>
+    <div class="stats-grid">
+        <div class="stat-card"><small>العدد</small><b id="stCount">0</b></div>
+        <div class="stat-card"><small>المعدل</small><b id="stAvg">0.0</b></div>
+        <div class="stat-card" style="background:var(--green)"><small>ناجح</small><b id="stPass">0</b></div>
+        <div class="stat-card" style="background:var(--red)"><small>راسب</small><b id="stFail">0</b></div>
     </div>
 
-    <div id="importModal" class="modal">
-        <div class="modal-content">
-            <h3 style="margin-top:0">استيراد سريع</h3>
-            <p style="font-size:0.8rem; color:#666">انسخ قائمة الأسماء من Excel أو ملف نصي وضع كل اسم في سطر:</p>
-            <textarea id="importArea" placeholder="محمد بلقاسم&#10;عمر خالد&#10;سارة فاسي..."></textarea>
-            <div style="display:flex; gap:10px;">
-                <button onclick="processImport()" style="flex:2; background:var(--primary); color:white; border:none; padding:12px; border-radius:10px; font-weight:bold;">إدخال القائمة</button>
-                <button onclick="closeImport()" style="flex:1; background:#f1f5f9; border:none; padding:12px; border-radius:10px;">إلغاء</button>
-            </div>
+    <div class="marks-table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th style="text-align:right;">التلميذ</th>
+                    <th>تقويم</th>
+                    <th>فرض</th>
+                    <th>اختبار</th>
+                    <th>معدل</th>
+                </tr>
+            </thead>
+            <tbody id="marksBody"></tbody>
+        </table>
+    </div>
+</div>
+
+<div id="importModal" class="modal">
+    <div class="modal-content">
+        <h3 style="margin-top:0">استيراد سريع</h3>
+        <p style="font-size:0.8rem; color:#666">انسخ قائمة الأسماء من Excel أو ملف نصي وضع كل اسم في سطر:</p>
+        <textarea id="importArea" placeholder="محمد بلقاسم&#10;عمر خالد&#10;سارة فاسي..."></textarea>
+        <div style="display:flex; gap:10px;">
+            <button onclick="processImport()" style="flex:2; background:var(--primary); color:white; border:none; padding:12px; border-radius:10px; font-weight:bold;">إدخال القائمة</button>
+            <button onclick="closeImport()" style="flex:1; background:#f1f5f9; border:none; padding:12px; border-radius:10px;">إلغاء</button>
         </div>
     </div>
+</div>
 
-    <script>
-        let db;
-        let scoreDivisor = parseFloat(localStorage.getItem("score_divisor")) || 3;
+<script>
+let db;
+let scoreDivisor = 4; // الجزائرية: المراقبة + الفرض + الاختبار*2 ÷4
 
-        const req = indexedDB.open("TanqitiDB", 1);
-        req.onsuccess = (e) => { db = e.target.result; renderMarks(); };
+const req = indexedDB.open("TanqitiDB",1);
+req.onupgradeneeded = e => { 
+    db = e.target.result;
+    if(!db.objectStoreNames.contains("students")) {
+        const store = db.createObjectStore("students",{keyPath:"id", autoIncrement:true});
+    }
+};
+req.onsuccess = e => { db=e.target.result; renderMarks(); };
 
-        function showImport() { document.getElementById('importModal').style.display = 'flex'; }
-        function closeImport() { document.getElementById('importModal').style.display = 'none'; }
+function showImport(){ document.getElementById('importModal').style.display='flex'; }
+function closeImport(){ document.getElementById('importModal').style.display='none'; }
 
-        // استيراد الأسماء
-        function processImport() {
-            const text = document.getElementById('importArea').value.trim();
-            if(!text) return;
-            const names = text.split('\n');
-            const tx = db.transaction("students", "readwrite");
-            const store = tx.objectStore("students");
-            
-            names.forEach(name => {
-                if(name.trim()) store.add({ name: name.trim(), taqwim: 0, fard: 0, ikhtibar: 0, average: "0.00" });
-            });
+function processImport(){
+    const text=document.getElementById('importArea').value.trim();
+    if(!text) return;
+    const names=text.split('\n');
+    const tx=db.transaction("students","readwrite");
+    const store=tx.objectStore("students");
+    names.forEach(name=>{ if(name.trim()) store.add({name:name.trim(),taqwim:0,fard:0,ikhtibar:0,average:"0.00"}); });
+    tx.oncomplete=()=>{ closeImport(); renderMarks(); };
+}
 
-            tx.oncomplete = () => {
-                closeImport();
-                renderMarks();
-            };
-        }
+function updateMark(id,field,value){
+    const val=parseFloat(value)||0;
+    const tx=db.transaction("students","readwrite");
+    const store=tx.objectStore("students");
+    store.get(id).onsuccess=e=>{
+        const s=e.target.result;
+        s[field]=val;
+        s.average=((s.taqwim + s.fard + s.ikhtibar*2)/scoreDivisor).toFixed(2);
+        store.put(s);
+    };
+    tx.oncomplete=()=>updateStats();
+}
 
-        // رصد النقاط وتحديث البيانات
-        function updateMark(id, field, value) {
-            const val = parseFloat(value) || 0;
-            const tx = db.transaction("students", "readwrite");
-            const store = tx.objectStore("students");
-            
-            store.get(id).onsuccess = (e) => {
-                const s = e.target.result;
-                s[field] = val;
-                s.average = ((s.taqwim + s.fard + s.ikhtibar) / scoreDivisor).toFixed(2);
-                store.put(s);
-            };
-            tx.oncomplete = () => updateStats(); 
-        }
+function renderMarks(){
+    if(!db) return;
+    const store=db.transaction("students").objectStore("students");
+    store.getAll().onsuccess=e=>{
+        let list=e.target.result;
+        const body=document.getElementById('marksBody');
+        body.innerHTML='';
+        list.sort((a,b)=>a.name.localeCompare(b.name));
+        list.forEach((s,index)=>{
+            const avgColor=s.average<10?'var(--red)':s.average<15?'var(--orange)':'var(--green)';
+            body.innerHTML+=`<tr>
+<td style="text-align:right;"><div style="font-weight:bold">${s.name}</div><span class="rank-tag">الرتبة: ${index+1}</span></td>
+<td><input type="number" class="input-mark" value="${s.taqwim}" onchange="updateMark(${s.id},'taqwim',this.value)"></td>
+<td><input type="number" class="input-mark" value="${s.fard}" onchange="updateMark(${s.id},'fard',this.value)"></td>
+<td><input type="number" class="input-mark" value="${s.ikhtibar}" onchange="updateMark(${s.id},'ikhtibar',this.value)"></td>
+<td><span class="avg-badge" style="background:${avgColor}">${s.average}</span></td>
+</tr>`;
+        });
+        updateStats();
+    };
+}
 
-        function renderMarks() {
-            if(!db) return;
-            const store = db.transaction("students").objectStore("students");
-            store.getAll().onsuccess = (e) => {
-                let list = e.target.result;
-                const body = document.getElementById('marksBody');
-                body.innerHTML = '';
+function updateStats(){
+    const store=db.transaction("students").objectStore("students");
+    store.getAll().onsuccess=e=>{
+        const list=e.target.result;
+        const count=list.length;
+        const avg=list.reduce((a,b)=>a+parseFloat(b.average),0)/(count||1);
+        const pass=list.filter(s=>s.average>=10).length;
+        document.getElementById('stCount').innerText=count;
+        document.getElementById('stAvg').innerText=avg.toFixed(2);
+        document.getElementById('stPass').innerText=pass;
+        document.getElementById('stFail').innerText=count-pass;
+    };
+}
 
-                // ترتيب افتراضي حسب الاسم
-                list.sort((a,b) => a.name.localeCompare(b.name));
+function sortData(){
+    const store=db.transaction("students").objectStore("students");
+    store.getAll().onsuccess=e=>{
+        let list=e.target.result;
+        list.sort((a,b)=>b.average-a.average);
+        const body=document.getElementById('marksBody');
+        body.innerHTML='';
+        list.forEach((s,index)=>{
+            const avgColor=s.average<10?'var(--red)':s.average<15?'var(--orange)':'var(--green)';
+            body.innerHTML+=`<tr>
+<td style="text-align:right;"><div style="font-weight:bold">${s.name}</div><span class="rank-tag">الرتبة: ${index+1}</span></td>
+<td><input type="number" class="input-mark" value="${s.taqwim}" onchange="updateMark(${s.id},'taqwim',this.value)"></td>
+<td><input type="number" class="input-mark" value="${s.fard}" onchange="updateMark(${s.id},'fard',this.value)"></td>
+<td><input type="number" class="input-mark" value="${s.ikhtibar}" onchange="updateMark(${s.id},'ikhtibar',this.value)"></td>
+<td><span class="avg-badge" style="background:${avgColor}">${s.average}</span></td>
+</tr>`;
+        });
+    };
+}
 
-                list.forEach((s, index) => {
-                    const avgColor = s.average < 10 ? 'var(--red)' : (s.average < 15 ? 'var(--gold)' : 'var(--green)');
-                    body.innerHTML += `
-                        <tr>
-                            <td style="text-align: right;">
-                                <div style="font-weight:bold">${s.name}</div>
-                                <span class="rank-tag">الرتبة: ${index + 1}</span>
-                            </td>
-                            <td><input type="number" class="input-mark" value="${s.taqwim}" onchange="updateMark(${s.id}, 'taqwim', this.value)"></td>
-                            <td><input type="number" class="input-mark" value="${s.fard}" onchange="updateMark(${s.id}, 'fard', this.value)"></td>
-                            <td><input type="number" class="input-mark" value="${s.ikhtibar}" onchange="updateMark(${s.id}, 'ikhtibar', this.value)"></td>
-                            <td><span class="avg-badge" id="avg-${s.id}" style="background:${avgColor}">${s.average}</span></td>
-                        </tr>
-                    `;
-                });
-                updateStats();
-            };
-        }
+function exportData(){
+    const name=localStorage.getItem("prof_name")||"الأستاذ";
+    const store=db.transaction("students").objectStore("students");
+    store.getAll().onsuccess=e=>{
+        let text=`نتائج قسم الأستاذ: ${name}\n--------------------------\n`;
+        e.target.result.forEach(s=>{ text+=`${s.name}: المعدل ${s.average}\n`; });
+        const mailto=`mailto:?subject=نتائج التلاميذ&body=${encodeURIComponent(text)}`;
+        window.location.href=mailto;
+    };
+}
+</script>
 
-        function updateStats() {
-            const store = db.transaction("students").objectStore("students");
-            store.getAll().onsuccess = (e) => {
-                const list = e.target.result;
-                const count = list.length;
-                const avg = list.reduce((a, b) => a + parseFloat(b.average), 0) / (count || 1);
-                const pass = list.filter(s => s.average >= 10).length;
-
-                document.getElementById('stCount').innerText = count;
-                document.getElementById('stAvg').innerText = avg.toFixed(2);
-                document.getElementById('stPass').innerText = pass;
-                document.getElementById('stFail').innerText = count - pass;
-            };
-        }
-
-        function sortData() {
-            // منطق الترتيب حسب المعدل وإعادة العرض
-            const store = db.transaction("students").objectStore("students");
-            store.getAll().onsuccess = (e) => {
-                let list = e.target.result;
-                list.sort((a,b) => b.average - a.average);
-                // هنا نقوم بتحديث العرض بناء على القائمة المرتبة
-                const body = document.getElementById('marksBody');
-                body.innerHTML = '';
-                list.forEach((s, index) => {
-                    const avgColor = s.average < 10 ? 'var(--red)' : (s.average < 15 ? 'var(--gold)' : 'var(--green)');
-                    body.innerHTML += `
-                        <tr>
-                            <td style="text-align: right;">
-                                <div style="font-weight:bold">${s.name}</div>
-                                <span class="rank-tag">الرتبة: ${index + 1}</span>
-                            </td>
-                            <td><input type="number" class="input-mark" value="${s.taqwim}" onchange="updateMark(${s.id}, 'taqwim', this.value)"></td>
-                            <td><input type="number" class="input-mark" value="${s.fard}" onchange="updateMark(${s.id}, 'fard', this.value)"></td>
-                            <td><input type="number" class="input-mark" value="${s.ikhtibar}" onchange="updateMark(${s.id}, 'ikhtibar', this.value)"></td>
-                            <td><span class="avg-badge" style="background:${avgColor}">${s.average}</span></td>
-                        </tr>`;
-                });
-            };
-        }
-
-        function exportData() {
-            const name = localStorage.getItem("prof_name") || "الاستاذ";
-            const store = db.transaction("students").objectStore("students");
-            store.getAll().onsuccess = (e) => {
-                let text = `نتائج قسم الأستاذ: ${name}\n--------------------------\n`;
-                e.target.result.forEach(s => {
-                    text += `${s.name}: المعدل ${s.average}\n`;
-                });
-                const mailto = `mailto:?subject=نتائج التلاميذ&body=${encodeURIComponent(text)}`;
-                window.location.href = mailto;
-            };
-        }
-    </script>
 </body>
 </html>
