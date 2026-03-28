@@ -1,241 +1,167 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>إدارة التلاميذ - تنقيطي Pro</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;700&display=swap" rel="stylesheet">
-<style>
-:root {
-    --primary: #1a365d; --gold: #b7791f; --bg: #f8fafc; 
-    --red: #e53e3e; --green: #38a169; --orange: #dd6b20; 
-}
-* { font-variant-numeric: tabular-nums; margin:0; padding:0; box-sizing:border-box; }
-body { font-family: 'Noto Kufi Arabic', sans-serif; background: var(--bg); color: #2d3748; }
-.top-bar { background: var(--primary); color: #fff; padding:15px; display:flex; justify-content:space-between; align-items:center; position:sticky; top:0; z-index:100; }
-.top-bar h2 { font-size:1.1rem; }
-.btn-icon { background: rgba(255,255,255,0.2); border:none; color:white; padding:8px 12px; border-radius:8px; cursor:pointer; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>تنقيطي Pro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@700&family=Noto+Kufi+Arabic:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #1a365d;
+            --gold: #b7791f;
+            --bg: #f8fafc;
+        }
 
-.container { max-width:600px; margin:auto; padding:15px; }
-.quick-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:15px; }
-.stat-box { background:white; padding:10px; border-radius:12px; text-align:center; box-shadow:0 2px 4px rgba(0,0,0,0.05); border-top:3px solid var(--gold); }
-.stat-box span { display:block; font-size:0.7rem; color:#718096; }
-.stat-box b { font-size:1.1rem; color: var(--primary); }
+        body {
+            font-family: 'Noto Kufi Arabic', sans-serif;
+            background-color: var(--bg);
+            margin: 0; padding: 0;
+            display: flex; justify-content: center;
+            overflow-x: hidden;
+        }
 
-.search-row { display:flex; gap:8px; margin-bottom:15px; }
-.search-input { flex:1; padding:12px; border:1px solid #cbd5e1; border-radius:12px; outline:none; font-size:0.9rem; text-align:right; }
-.add-btn { background: var(--primary); color:white; border:none; padding:0 15px; border-radius:12px; font-weight:bold; cursor:pointer; }
+        #appContainer { width: 100%; max-width: 420px; padding: 20px; display: none; }
 
-.student-list { display:flex; flex-direction:column; gap:10px; }
-.student-card { background:white; padding:15px; border-radius:15px; box-shadow:0 2px 8px rgba(0,0,0,0.05); border-right:6px solid #ccc; transition:0.3s; }
-.student-card.fail { border-right-color: var(--red); }
-.student-card.mid { border-right-color: var(--orange); }
-.student-card.excel { border-right-color: var(--green); }
+        /* الهيدر */
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .header h1 { font-family: 'Amiri', serif; font-size: 1.8rem; margin: 0; color: var(--primary); }
+        .bell-btn { background: white; border: none; padding: 10px; border-radius: 12px; position: relative; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .dot { position: absolute; top: 8px; right: 8px; width: 8px; height: 8px; background: red; border-radius: 50%; border: 2px solid white; }
 
-.card-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
-.card-body { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; font-size:0.9rem; background:#f8fafc; padding:8px; border-radius:8px; text-align:center; }
-.card-body small { display:block; font-size:0.65rem; color:#718096; margin-bottom:2px; }
-.card-footer { margin-top:10px; display:flex; justify-content:flex-end; gap:20px; border-top:1px dashed #eee; padding-top:10px; }
-.action-btn { border:none; background:none; cursor:pointer; font-size:0.85rem; font-weight:bold; }
+        /* الكرت الرئيسي */
+        .main-card {
+            background: linear-gradient(135deg, var(--primary) 0%, #2d4a77 100%);
+            color: white; padding: 20px; border-radius: 20px; margin-bottom: 20px;
+            text-align: center; box-shadow: 0 10px 20px rgba(26, 54, 93, 0.2);
+        }
+        .main-card h2 { font-size: 2.5rem; margin: 10px 0; }
+        .main-card p { font-size: 0.9rem; opacity: 0.8; margin: 0; }
 
-.modal { position: fixed; inset:0; background: rgba(0,0,0,0.7); display:none; align-items:center; justify-content:center; z-index:1000; backdrop-filter: blur(4px); }
-.modal-content { background:white; width:85%; max-width:380px; padding:25px; border-radius:20px; }
+        /* الشبكة المعدلة (3 أزرار فقط) */
+        .menu-grid { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 12px; 
+        }
+        
+        /* جعل الزر الأول (سجل التلاميذ) يأخذ عرض السطر بالكامل لجمالية التصميم */
+        .menu-item.full { grid-column: span 2; }
 
-.form-group { margin-bottom:15px; }
-.form-group label { display:block; font-size:0.85rem; margin-bottom:5px; font-weight:bold; }
-.form-group input { width:100%; padding:12px; border:1px solid #ddd; border-radius:10px; font-size:1rem; }
+        .menu-item {
+            background: white; padding: 25px 10px; border-radius: 18px;
+            text-align: center; text-decoration: none; color: var(--primary);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02); border: 1px solid #f1f5f9;
+            transition: 0.2s;
+        }
+        .menu-item:active { transform: scale(0.97); background: #f1f5f9; }
+        .menu-item i { font-size: 2rem; color: var(--gold); margin-bottom: 12px; display: block; }
+        .menu-item span { font-weight: bold; font-size: 1rem; }
 
-</style>
+        /* درج الإشعارات الجانبي */
+        #notifDrawer {
+            position: fixed; top: 0; left: -100%; width: 100%; height: 100%;
+            background: white; z-index: 10000; transition: 0.4s; padding: 30px; box-sizing: border-box;
+        }
+        #notifDrawer.open { left: 0; }
+
+        /* نافذة الدخول */
+        #nameModal { position: fixed; inset: 0; background: var(--primary); display: flex; align-items: center; justify-content: center; z-index: 9999; }
+        .modal-box { background: white; padding: 30px; border-radius: 20px; width: 85%; text-align: center; }
+        input { width: 100%; padding: 12px; margin: 20px 0; border: 1px solid #ddd; border-radius: 10px; text-align: center; font-size: 1rem; }
+        button { background: var(--primary); color: white; border: none; width: 100%; padding: 12px; border-radius: 10px; font-weight: bold; }
+    </style>
 </head>
 <body>
 
-<div id="configModal" class="modal">
-    <div class="modal-content" style="text-align:center;">
-        <i class="fas fa-sliders" style="font-size:2rem; color:var(--gold); margin-bottom:15px;"></i>
-        <h3 style="margin:0 0 10px 0; color:var(--primary)">إعداد المعامل</h3>
-        <p style="font-size:0.85rem; color:#666">يرجى إدخال معامل المادة (اختياري لعرض):</p>
-        <input type="number" id="divisorInput" value="4" style="text-align:center; font-size:1.5rem; font-weight:bold;">
-        <button onclick="saveConfig()" style="background:var(--primary); color:white; width:100%; padding:15px; border:none; border-radius:12px; font-weight:bold; margin-top:10px;">بدء العمل</button>
-    </div>
-</div>
-
-<div class="top-bar">
-    <button class="btn-icon" onclick="location.href='home.html'"><i class="fas fa-chevron-right"></i></button>
-    <h2>سجل التلاميذ</h2>
-    <button class="btn-icon" onclick="resetDivisor()"><i class="fas fa-gear"></i></button>
-</div>
-
-<div class="container">
-    <div class="quick-stats">
-        <div class="stat-box"><span>العدد</span><b id="sCount">0</b></div>
-        <div class="stat-box"><span>المعدل</span><b id="sAvg">0.0</b></div>
-        <div class="stat-box"><span>المعامل</span><b id="divisorLabel">4</b></div>
+    <div id="notifDrawer">
+        <div onclick="toggleNotif()" style="cursor:pointer; margin-bottom:20px;"><i class="fas fa-arrow-right"></i> عودة</div>
+        <h3>التنبيهات</h3>
+        <hr>
+        <p style="color:#666">لا توجد تنبيهات جديدة حالياً.</p>
     </div>
 
-    <div class="search-row">
-        <input type="text" id="searchInput" class="search-input" placeholder="ابحث عن اسم..." oninput="renderStudents()">
-        <button class="add-btn" onclick="toggleModal(true)"><i class="fas fa-plus"></i> إضافة</button>
-    </div>
-
-    <div id="studentList" class="student-list"></div>
-</div>
-
-<div id="studentModal" class="modal">
-    <div class="modal-content">
-        <h3 id="modalTitle" style="margin:0 0 15px 0; color:var(--primary)">إضافة تلميذ</h3>
-        <div class="form-group">
-            <label>الاسم واللقب</label>
-            <input type="text" id="stdName" placeholder="الاسم الكامل">
-        </div>
-        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:10px;">
-            <div class="form-group"><label>تقويم</label><input type="number" id="taqwim" placeholder="00" min="0" max="20" step="0.25"></div>
-            <div class="form-group"><label>فرض</label><input type="number" id="fard" placeholder="00" min="0" max="20" step="0.25"></div>
-            <div class="form-group"><label>اختبار</label><input type="number" id="ikhtibar" placeholder="00" min="0" max="20" step="0.25"></div>
-        </div>
-        <div style="display:flex; gap:10px; margin-top:10px;">
-            <button onclick="saveStudent()" style="background:var(--primary); color:white; flex:2; padding:12px; border:none; border-radius:10px; font-weight:bold;">حفظ</button>
-            <button onclick="toggleModal(false)" style="background:#f1f5f9; color:#475569; flex:1; padding:12px; border:none; border-radius:10px; font-weight:bold;">إلغاء</button>
+    <div id="nameModal" style="display:none">
+        <div class="modal-box">
+            <h2 style="font-family:'Amiri'">أهلاً بك يا أستاذ</h2>
+            <input type="text" id="nameInput" placeholder="اكتب اسمك هنا...">
+            <button onclick="saveName()">دخول</button>
         </div>
     </div>
-</div>
 
-<script>
-let db;
-let currentEditId = null;
-let scoreDivisor = 4; // هذا للحساب الرسمي الجزائرية: المراقبة + الفرض + الاختبار*2 ÷4
+    <div id="appContainer">
+        <div class="header">
+            <h1 id="userTitle">أهلاً بك</h1>
+            <button class="bell-btn" onclick="toggleNotif()">
+                <i class="fas fa-bell"></i>
+                <div class="dot"></div>
+            </button>
+        </div>
 
-const req = indexedDB.open("TanqitiDB", 1);
+        <div class="main-card">
+            <p>إجمالي التلاميذ المسجلين</p>
+            <h2 id="countDisp">0</h2>
+            <div id="dateDisp" style="font-size: 0.8rem; opacity:0.7"></div>
+        </div>
 
-req.onupgradeneeded = (e) => {
-    db = e.target.result;
-    if(!db.objectStoreNames.contains("students")) {
-        const store = db.createObjectStore("students", { keyPath:"id", autoIncrement:true });
-        store.createIndex("name", "name", { unique:false });
-    }
-};
+        <div class="menu-grid">
+            <a href="students.html" class="menu-item full">
+                <i class="fas fa-user-graduate"></i>
+                <span>سجل التلاميذ</span>
+            </a>
+            <a href="marks.html" class="menu-item">
+                <i class="fas fa-file-signature"></i>
+                <span>رصد النقاط</span>
+            </a>
+            <a href="reports.html" class="menu-item">
+                <i class="fas fa-print"></i>
+                <span>التقارير</span>
+            </a>
+        </div>
+    </div>
 
-req.onsuccess = (e) => {
-    db = e.target.result;
-    checkConfig();
-    renderStudents();
-};
+    <script>
+        function toggleNotif() {
+            document.getElementById('notifDrawer').classList.toggle('open');
+            document.querySelector('.dot').style.display = 'none';
+        }
 
-function checkConfig() {
-    const saved = localStorage.getItem("score_divisor");
-    if(!saved) document.getElementById('configModal').style.display = 'flex';
-    else {
-        scoreDivisor = parseFloat(saved);
-        document.getElementById('divisorLabel').innerText = scoreDivisor;
-    }
-}
+        let db;
+        const req = indexedDB.open("TanqitiDB", 1);
+        req.onupgradeneeded = (e) => {
+            e.target.result.createObjectStore("students", { keyPath: "id", autoIncrement: true });
+        };
+        req.onsuccess = (e) => {
+            db = e.target.result;
+            updateCount();
+        };
 
-function saveConfig() {
-    const val = parseFloat(document.getElementById('divisorInput').value);
-    if(val > 0) {
-        localStorage.setItem("score_divisor", val);
-        scoreDivisor = val;
-        document.getElementById('divisorLabel').innerText = val;
-        document.getElementById('configModal').style.display = 'none';
-        renderStudents();
-    }
-}
+        function updateCount() {
+            if(!db) return;
+            const store = db.transaction("students").objectStore("students");
+            const countReq = store.count();
+            countReq.onsuccess = () => document.getElementById('countDisp').innerText = countReq.result;
+        }
 
-function resetDivisor() {
-    const n = prompt("تعديل المعامل (قيمة القسمة الحالية: " + scoreDivisor + ")", scoreDivisor);
-    if(n > 0) {
-        localStorage.setItem("score_divisor", n);
-        location.reload();
-    }
-}
+        window.onload = function() {
+            const name = localStorage.getItem("prof_name");
+            if (!name) document.getElementById("nameModal").style.display = "flex";
+            else launch(name);
+            
+            document.getElementById("dateDisp").innerText = new Date().toLocaleDateString('ar-DZ', { weekday: 'long', day: 'numeric', month: 'long' });
+        };
 
-function toggleModal(show, id=null) {
-    document.getElementById('studentModal').style.display = show ? 'flex' : 'none';
-    currentEditId = id;
-    if(!show) {
-        document.getElementById('stdName').value = '';
-        document.getElementById('taqwim').value = '';
-        document.getElementById('fard').value = '';
-        document.getElementById('ikhtibar').value = '';
-        document.getElementById('modalTitle').innerText = "إضافة تلميذ";
-    }
-    if(id) loadStudent(id);
-}
+        function saveName() {
+            const n = document.getElementById("nameInput").value.trim();
+            if(n) { localStorage.setItem("prof_name", n); launch(n); }
+        }
 
-function saveStudent() {
-    const name = document.getElementById('stdName').value.trim();
-    const t = parseFloat(document.getElementById('taqwim').value) || 0;
-    const f = parseFloat(document.getElementById('fard').value) || 0;
-    const i = parseFloat(document.getElementById('ikhtibar').value) || 0;
-
-    if(!name) return alert("الرجاء إدخال الاسم");
-
-    const avg = (t + f + i*2)/4;
-
-    const student = { name, taqwim:t, fard:f, ikhtibar:i, average:avg.toFixed(2) };
-    if(currentEditId) student.id = currentEditId;
-
-    const tx = db.transaction("students","readwrite");
-    tx.objectStore("students").put(student);
-    tx.oncomplete = ()=> { toggleModal(false); renderStudents(); };
-}
-
-function renderStudents() {
-    if(!db) return;
-    const store = db.transaction("students").objectStore("students");
-    store.getAll().onsuccess = (e)=>{
-        let list = e.target.result;
-        const search = document.getElementById('searchInput').value.toLowerCase();
-        list = list.filter(s=>s.name.toLowerCase().includes(search));
-
-        document.getElementById('sCount').innerText = list.length;
-        const totalAvg = list.reduce((a,b)=>a+parseFloat(b.average),0)/(list.length||1);
-        document.getElementById('sAvg').innerText = totalAvg.toFixed(2);
-
-        const container = document.getElementById('studentList');
-        container.innerHTML = '';
-        list.forEach(s=>{
-            const realAvg = ((s.taqwim+s.fard+s.ikhtibar*2)/4).toFixed(2);
-            let cls = realAvg<10?'fail':realAvg<15?'mid':'excel';
-            container.innerHTML += `
-            <div class="student-card ${cls}">
-                <div class="card-header">
-                    <b>${s.name}</b>
-                    <span style="font-size:1.1rem; font-weight:800; color:var(--primary)">${realAvg}</span>
-                </div>
-                <div class="card-body">
-                    <div><small>تقويم</small>${s.taqwim}</div>
-                    <div><small>فرض</small>${s.fard}</div>
-                    <div><small>اختبار</small>${s.ikhtibar}</div>
-                </div>
-                <div class="card-footer">
-                    <button class="action-btn" onclick="toggleModal(true,${s.id})" style="color:var(--primary)"><i class="fas fa-edit"></i></button>
-                    <button class="action-btn" onclick="deleteStudent(${s.id})" style="color:var(--red)"><i class="fas fa-trash"></i></button>
-                </div>
-            </div>`;
-        });
-    };
-}
-
-function deleteStudent(id) {
-    if(confirm("هل تريد حذف هذا التلميذ؟")) {
-        const tx = db.transaction("students","readwrite");
-        tx.objectStore("students").delete(id);
-        tx.oncomplete = ()=>renderStudents();
-    }
-}
-
-function loadStudent(id) {
-    db.transaction("students").objectStore("students").get(id).onsuccess = (e)=>{
-        const s = e.target.result;
-        document.getElementById('modalTitle').innerText = "تعديل البيانات";
-        document.getElementById('stdName').value = s.name;
-        document.getElementById('taqwim').value = s.taqwim;
-        document.getElementById('fard').value = s.fard;
-        document.getElementById('ikhtibar').value = s.ikhtibar;
-    };
-}
-</script>
-
+        function launch(name) {
+            document.getElementById("nameModal").style.display = "none";
+            document.getElementById("appContainer").style.display = "block";
+            document.getElementById("userTitle").innerText = "الأستاذ " + name;
+        }
+    </script>
 </body>
 </html>
